@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Garment Sales Management</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<!-- ================= HEADER ================= -->
+
+<header class="top glass">
+
+    <div class="brand">
+
+        <div class="brand-icon">G</div>
+
+        <div>
+            <h1>Garment Sales</h1>
+            <p>Management System</p>
+        </div>
+
+    </div>
+
+
+    <div class="status">
+
+        <span class="status-dot"></span>
+
+        System Online
+
+    </div>
+
+</header>
+
+
+
+<!-- ================= NAVIGATION ================= -->
+
+<nav class="tabs glass">
+
+    <button class="tab active"
+            onclick="showSection('dashboard', this)">
+        Dashboard
+    </button>
+
+    <button class="tab"
+            onclick="showSection('customer', this)">
+        Customers
+    </button>
+
+    <button class="tab"
+            onclick="showSection('product', this)">
+        Products
+    </button>
+
+    <button class="tab"
+            onclick="showSection('variant', this)">
+        Variants
+    </button>
+
+    <button class="tab"
+            onclick="showSection('stock', this)">
+        Stock
+    </button>
+
+    <button class="tab"
+            onclick="showSection('order', this)">
+        Orders
+    </button>
+
+    <button class="tab"
+            onclick="showSection('invoice', this)">
+        Invoices
+    </button>
+
+    <button class="tab"
+            onclick="showSection('payment', this)">
+        Payments
+    </button>
+
+</nav>
+
+
+
+<main>
+
+
+<br><br><br>
+<!-- ================= DASHBOARD ================= -->
+
+<section id="dashboard" class="panel">
+
+    <div class="card glass">
+
+        <div class="card-head">
+
+            <h2>Dashboard</h2>
+
+            <button class="btn ghost"
+                    type="button"
+                    onclick="loadDashboard()">
+                Refresh
+            </button>
+
+        </div>
+
+
+        <div class="stats">
+
+            <div class="stat">
+                <span id="dashboardProducts">0</span>
+                <small>Products</small>
+            </div>
+
+            <div class="stat">
+                <span id="dashboardCustomers">0</span>
+                <small>Customers</small>
+            </div>
+
+            <div class="stat">
+                <span id="dashboardOrders">0</span>
+                <small>Orders</small>
+            </div>
+
+            <div class="stat">
+                <span id="dashboardInvoices">0</span>
+                <small>Invoices</small>
+            </div>
+
+            <div class="stat">
+                <span id="dashboardPayments">0</span>
+                <small>Payments</small>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<br><br><br>
+
+<!-- ================= CUSTOMER ================= -->
+
+<section id="customer" class="panel">
+
+    <div class="card glass">
+
+        <div class="card-head">
+
+            <h2>Customers</h2>
+
+        </div>
+
+
+        <div class="form-grid">
+
+
+            <div class="field">
+
+                <label>Customer Code</label>
+
+                <input type="text"
+                       id="customerCode"
+                       placeholder="Example: C001">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Customer Name</label>
+
+                <input type="text"
+                       id="customerName"
+                       placeholder="Customer name">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Customer Type</label>
+
+                <input type="text"
+                       id="customerType"
+                       value="Retail">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Phone</label>
+
+                <input type="text"
+                       id="customerPhone"
+                       placeholder="Phone number">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Email</label>
+
+                <input type="email"
+                       id="customerEmail"
+                       placeholder="Email">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>GSTIN</label>
+
+                <input type="text"
+                       id="customerGSTIN"
+                       placeholder="GSTIN">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>City</label>
+
+                <input type="text"
+                       id="customerCity"
+                       placeholder="City">
+
+            </div>
+
+
+        </div>
+
+
+        <div class="actions">
+
+            <button class="btn primary"
+                    type="button"
+                    onclick="saveCustomer()">
+
+                Save Customer
+
+            </button>
+
+
+            <button class="btn ghost"
+                    type="button"
+                    onclick="loadCustomers()">
+
+                Load Customers
+
+            </button>
+
+        </div>
+
+
+
+        <h3>Customer List</h3>
+
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>City</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="customerTable">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<br><br><br>
+
+<!-- ================= PRODUCT ================= -->
+
+<section id="product" class="panel">
+
+    <div class="card glass">
+
+        <div class="card-head">
+
+            <h2>Products</h2>
+
+        </div>
+
+
+        <div class="form-grid">
+
+
+            <div class="field">
+
+                <label>Product Code</label>
+
+                <input type="text"
+                       id="productCode"
+                       placeholder="Example: P001">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Product Name</label>
+
+                <input type="text"
+                       id="productName"
+                       placeholder="Example: Shirt">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Category ID</label>
+
+                <input type="number"
+                       id="categoryID"
+                       placeholder="Example: 1">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Brand ID</label>
+
+                <input type="number"
+                       id="brandID"
+                       placeholder="Example: 1">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>HSN Code</label>
+
+                <input type="text"
+                       id="hsnCode"
+                       placeholder="Example: 4545">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>UOM ID</label>
+
+                <input type="number"
+                       id="uomID"
+                       placeholder="Example: 1">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Tax ID</label>
+
+                <input type="number"
+                       id="taxID"
+                       placeholder="Example: 1">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Fabric</label>
+
+                <input type="text"
+                       id="fabric"
+                       placeholder="Example: Cotton">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Season</label>
+
+                <input type="text"
+                       id="season"
+                       placeholder="Example: Summer">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Gender</label>
+
+                <input type="text"
+                       id="gender"
+                       placeholder="Example: Men">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>MRP</label>
+
+                <input type="number"
+                       id="mrp"
+                       placeholder="Example: 100">
+
+            </div>
+
+
+        </div>
+
+
+        <div class="actions">
+
+            <button class="btn primary"
+                    type="button"
+                    onclick="saveProduct()">
+
+                Save Product
+
+            </button>
+
+
+            <button class="btn ghost"
+                    type="button"
+                    onclick="loadProducts()">
+
+                Load Products
+
+            </button>
+
+        </div>
+
+
+
+        <h3>Product List</h3>
+
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Brand</th>
+                        <th>HSN</th>
+                        <th>UOM</th>
+                        <th>Tax</th>
+                        <th>Fabric</th>
+                        <th>Season</th>
+                        <th>Gender</th>
+                        <th>MRP</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="productTable">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<br><br><br>
+
+<!-- ================= PRODUCT VARIANT ================= -->
+
+<section id="variant" class="panel">
+
+    <div class="card glass">
+
+        <div class="card-head">
+
+            <h2>Product Variant</h2>
+
+        </div>
+
+
+        <div class="form-grid">
+
+
+            <div class="field">
+
+                <label>Product ID</label>
+
+                <input type="number"
+                       id="productID">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Size ID</label>
+
+                <input type="number"
+                       id="sizeID">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Color ID</label>
+
+                <input type="number"
+                       id="colorID">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>SKU Code</label>
+
+                <input type="text"
+                       id="skuCode">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Barcode</label>
+
+                <input type="text"
+                       id="barcode">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Selling Price</label>
+
+                <input type="number"
+                       id="sellingPrice">
+
+            </div>
+
+
+        </div>
+
+
+        <div class="actions">
+
+            <button class="btn primary"
+                    type="button"
+                    onclick="saveVariant()">
+
+                Save Variant
+
+            </button>
+
+        </div>
+
+
+        <h3>Product Variants</h3>
+
+
+        <div class="actions">
+
+            <button class="btn ghost"
+                    type="button"
+                    onclick="loadVariants()">
+
+                Load Variants
+
+            </button>
+
+        </div>
+
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Variant ID</th>
+                        <th>Product ID</th>
+                        <th>Size ID</th>
+                        <th>Color ID</th>
+                        <th>SKU Code</th>
+                        <th>Barcode</th>
+                        <th>Selling Price</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="variantTable"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<br><br><br>
+
+<!-- ================= STOCK ================= -->
+
+<section id="stock" class="panel">
+
+    <div class="card glass">
+
+        <div class="card-head">
+
+            <h2>Stock Management</h2>
+
+        </div>
+
+
+        <div class="form-grid">
+
+
+            <div class="field">
+
+                <label>Variant ID</label>
+
+                <input type="number"
+                       id="variantID"
+                       placeholder="Example: 3">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Warehouse ID</label>
+
+                <input type="number"
+                       id="warehouseID"
+                       placeholder="Example: 1">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Quantity Available</label>
+
+                <input type="number"
+                       id="qtyAvailable"
+                       placeholder="Example: 50">
+
+            </div>
+
+
+        </div>
+
+
+        <div class="actions">
+
+            <button class="btn primary"
+                    type="button"
+                    onclick="saveStock()">
+
+                Save Stock
+
+            </button>
+
+
+            <button class="btn ghost"
+                    type="button"
+                    onclick="loadStock()">
+
+                Load Stock
+
+            </button>
+
+        </div>
+
+
+        <h3>Stock List</h3>
+
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Stock ID</th>
+                        <th>Variant ID</th>
+                        <th>Warehouse ID</th>
+                        <th>Quantity</th>
+                        <th>Last Updated</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="stockTable"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+<br><br><br>
+
+
+<!-- ================= SALES ORDER ================= -->
+
+<section id="order" class="panel">
+
+    <div class="card glass">
+
+        <div class="card-head">
+
+            <h2>Sales Order</h2>
+
+        </div>
+
+
+        <div class="form-grid">
+
+
+            <div class="field">
+
+                <label>Order No</label>
+
+                <input type="text"
+                       id="orderNo"
+                       placeholder="Example: SO002">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Order Date</label>
+
+                <input type="date"
+                       id="orderDate">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Customer ID</label>
+
+                <input type="number"
+                       id="orderCustomerID"
+                       placeholder="Example: 1">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Warehouse ID</label>
+
+                <input type="number"
+                       id="orderWarehouseID"
+                       placeholder="Example: 1">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Status</label>
+
+                <input type="text"
+                       id="orderStatus"
+                       value="Pending">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Created By</label>
+
+                <input type="text"
+                       id="createdBy"
+                       value="Admin">
+
+            </div>
+
+
+            <div class="field full">
+
+                <label>Remarks</label>
+
+                <input type="text"
+                       id="orderRemarks"
+                       placeholder="Remarks">
+
+            </div>
+
+
+        </div>
+
+
+        <div class="actions">
+
+            <button class="btn primary"
+                    type="button"
+                    onclick="saveSalesOrder()">
+
+                Save Sales Order
+
+            </button>
+
+
+            <button class="btn ghost"
+                    type="button"
+                    onclick="loadSalesOrders()">
+
+                Load Sales Orders
+
+            </button>
+
+        </div>
+
+
+        <h3>Sales Order List</h3>
+
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Order No</th>
+                        <th>Date</th>
+                        <th>Customer ID</th>
+                        <th>Warehouse ID</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="salesOrderTable"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<br><br><br>
+
+<!-- ================= INVOICE ================= -->
+
+<section id="invoice" class="panel">
+
+    <div class="card glass">
+
+        <div class="card-head">
+
+            <h2>Invoice</h2>
+
+        </div>
+
+
+        <div class="form-grid">
+
+
+            <div class="field">
+                <label>Invoice No</label>
+                <input type="text"
+                       id="invoiceNo"
+                       placeholder="Example: INV002">
+            </div>
+
+
+            <div class="field">
+                <label>Invoice Date</label>
+                <input type="date"
+                       id="invoiceDate">
+            </div>
+
+
+            <div class="field">
+                <label>Sales Order ID</label>
+                <input type="number"
+                       id="invoiceSalesOrderID"
+                       placeholder="Example: 2">
+            </div>
+
+
+            <div class="field">
+                <label>Customer ID</label>
+                <input type="number"
+                       id="invoiceCustomerID"
+                       placeholder="Example: 1">
+            </div>
+
+
+            <div class="field">
+                <label>Warehouse ID</label>
+                <input type="number"
+                       id="invoiceWarehouseID"
+                       placeholder="Example: 1">
+            </div>
+
+
+            <div class="field">
+                <label>Place of Supply</label>
+                <input type="text"
+                       id="placeOfSupply"
+                       placeholder="Example: Tamil Nadu">
+            </div>
+
+
+            <div class="field">
+                <label>Invoice Type</label>
+                <input type="text"
+                       id="invoiceType"
+                       value="Tax">
+            </div>
+
+
+            <div class="field">
+                <label>Subtotal</label>
+                <input type="number"
+                       id="subTotal">
+            </div>
+
+
+            <div class="field">
+                <label>Total Discount</label>
+                <input type="number"
+                       id="totalDiscount"
+                       value="0">
+            </div>
+
+
+            <div class="field">
+                <label>CGST</label>
+                <input type="number"
+                       id="totalCGST"
+                       value="0">
+            </div>
+
+
+            <div class="field">
+                <label>SGST</label>
+                <input type="number"
+                       id="totalSGST"
+                       value="0">
+            </div>
+
+
+            <div class="field">
+                <label>IGST</label>
+                <input type="number"
+                       id="totalIGST"
+                       value="0">
+            </div>
+
+
+            <div class="field">
+                <label>Round Off</label>
+                <input type="number"
+                       id="roundOff"
+                       value="0">
+            </div>
+
+
+            <div class="field">
+                <label>Grand Total</label>
+                <input type="number"
+                       id="grandTotal">
+            </div>
+
+
+        </div>
+
+
+        <div class="actions">
+
+            <button class="btn primary"
+                    type="button"
+                    onclick="saveInvoice()">
+
+                Save Invoice
+
+            </button>
+
+
+            <button class="btn ghost"
+                    type="button"
+                    onclick="loadInvoices()">
+
+                Load Invoices
+
+            </button>
+
+        </div>
+
+
+        <h3>Invoice List</h3>
+
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Invoice No</th>
+                        <th>Date</th>
+                        <th>Sales Order</th>
+                        <th>Customer</th>
+                        <th>Subtotal</th>
+                        <th>Grand Total</th>
+                        <th>Status</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="invoiceTable"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<br><br><br>
+
+<!-- ================= PAYMENT ================= -->
+
+<section id="payment" class="panel">
+
+    <div class="card glass">
+
+        <div class="card-head">
+
+            <h2>Payment</h2>
+
+        </div>
+
+
+        <div class="form-grid">
+
+
+            <div class="field">
+
+                <label>Invoice ID</label>
+
+                <input type="number"
+                       id="paymentInvoiceID"
+                       placeholder="Example: 1">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Payment Date</label>
+
+                <input type="date"
+                       id="paymentDate">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Amount</label>
+
+                <input type="number"
+                       id="paymentAmount"
+                       placeholder="Example: 218">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Payment Mode</label>
+
+                <input type="text"
+                       id="paymentMode"
+                       value="Cash">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Reference No</label>
+
+                <input type="text"
+                       id="referenceNo"
+                       placeholder="Example: PAY002">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Remarks</label>
+
+                <input type="text"
+                       id="paymentRemarks"
+                       placeholder="Remarks">
+
+            </div>
+
+
+        </div>
+
+
+        <div class="actions">
+
+            <button class="btn primary"
+                    type="button"
+                    onclick="savePayment()">
+
+                Save Payment
+
+            </button>
+
+
+            <button class="btn ghost"
+                    type="button"
+                    onclick="loadPayments()">
+
+                Load Payments
+
+            </button>
+
+        </div>
+
+
+        <h3>Payment List</h3>
+
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Payment ID</th>
+                        <th>Invoice ID</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Payment Mode</th>
+                        <th>Reference No</th>
+                        <th>Remarks</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="paymentTable"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+</main>
+
+
+
+<script src="script.js"></script>
+
+
+</body>
+
+</html>
