@@ -1,13 +1,20 @@
+import os
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import mysql.connector
 from waitress import serve
-import os
+
+
+# ==================================================
+# FLASK APPLICATION
+# ==================================================
 
 app = Flask(__name__)
 
-# Allow frontend to access this API
+# Allow frontend requests from GitHub Pages
 CORS(app)
+
 
 # ==================================================
 # DATABASE SETTINGS
@@ -19,9 +26,11 @@ MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD", "")
 MYSQL_HOST = os.environ.get("MYSQL_HOST", "localhost")
 MYSQL_PORT = int(os.environ.get("MYSQL_PORT", "3306"))
 
-# For local computer = true
-# For online database = false
-CREATE_DATABASE = os.environ.get("CREATE_DATABASE", "true").lower() == "true"
+# Local = true
+# Online/Render = false
+CREATE_DATABASE = os.environ.get(
+    "CREATE_DATABASE", "true"
+).lower() == "true"
 
 
 # ==================================================
@@ -35,9 +44,9 @@ def fast_initialize():
 
     try:
 
-        # --------------------------------------------------
-        # CREATE DATABASE IF REQUIRED
-        # --------------------------------------------------
+        # ------------------------------------------
+        # CREATE DATABASE
+        # ------------------------------------------
 
         if CREATE_DATABASE:
 
@@ -54,15 +63,17 @@ def fast_initialize():
                 f"CREATE DATABASE IF NOT EXISTS `{DB_NAME}`"
             )
 
+            conn.commit()
+
             cursor.close()
             conn.close()
 
             conn = None
             cursor = None
 
-        # --------------------------------------------------
+        # ------------------------------------------
         # CONNECT TO DATABASE
-        # --------------------------------------------------
+        # ------------------------------------------
 
         conn = mysql.connector.connect(
             host=MYSQL_HOST,
@@ -74,9 +85,9 @@ def fast_initialize():
 
         cursor = conn.cursor()
 
-        # ==================================================
+        # ------------------------------------------
         # CATEGORY
-        # ==================================================
+        # ------------------------------------------
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Category (
@@ -86,9 +97,9 @@ def fast_initialize():
             )
         """)
 
-        # ==================================================
+        # ------------------------------------------
         # BRAND
-        # ==================================================
+        # ------------------------------------------
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Brand (
@@ -98,9 +109,9 @@ def fast_initialize():
             )
         """)
 
-        # ==================================================
+        # ------------------------------------------
         # COLOR
-        # ==================================================
+        # ------------------------------------------
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Color (
@@ -109,9 +120,9 @@ def fast_initialize():
             )
         """)
 
-        # ==================================================
+        # ------------------------------------------
         # SIZE
-        # ==================================================
+        # ------------------------------------------
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Size (
@@ -121,9 +132,9 @@ def fast_initialize():
             )
         """)
 
-        # ==================================================
+        # ------------------------------------------
         # UOM
-        # ==================================================
+        # ------------------------------------------
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS UOM (
@@ -132,9 +143,9 @@ def fast_initialize():
             )
         """)
 
-        # ==================================================
+        # ------------------------------------------
         # TAX MASTER
-        # ==================================================
+        # ------------------------------------------
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS TaxMaster (
@@ -147,9 +158,9 @@ def fast_initialize():
             )
         """)
 
-        # ==================================================
+        # ------------------------------------------
         # WAREHOUSE
-        # ==================================================
+        # ------------------------------------------
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Warehouse (
@@ -159,9 +170,9 @@ def fast_initialize():
             )
         """)
 
-        # ==================================================
+        # ------------------------------------------
         # PRODUCT
-        # ==================================================
+        # ------------------------------------------
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Product (
@@ -194,9 +205,9 @@ def fast_initialize():
             )
         """)
 
-        # ==================================================
+        # ------------------------------------------
         # PRODUCT VARIANT
-        # ==================================================
+        # ------------------------------------------
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS ProductVariant (
@@ -223,9 +234,9 @@ def fast_initialize():
             )
         """)
 
-        # ==================================================
+        # ------------------------------------------
         # STOCK
-        # ==================================================
+        # ------------------------------------------
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Stock (
@@ -248,9 +259,9 @@ def fast_initialize():
             )
         """)
 
-        # ==================================================
+        # ------------------------------------------
         # CUSTOMER
-        # ==================================================
+        # ------------------------------------------
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Customer (
@@ -272,9 +283,9 @@ def fast_initialize():
             )
         """)
 
-        # ==================================================
+        # ------------------------------------------
         # SALES ORDER
-        # ==================================================
+        # ------------------------------------------
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS SalesOrder (
@@ -296,9 +307,9 @@ def fast_initialize():
             )
         """)
 
-        # ==================================================
+        # ------------------------------------------
         # SALES ORDER DETAIL
-        # ==================================================
+        # ------------------------------------------
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS SalesOrderDetail (
@@ -311,17 +322,22 @@ def fast_initialize():
 
                 DiscountAmount DECIMAL(12,2)
                     GENERATED ALWAYS AS
-                    (ROUND(Qty * Rate * DiscountPercent / 100, 2))
-                    STORED,
+                    (
+                        ROUND(
+                            Qty * Rate * DiscountPercent / 100,
+                            2
+                        )
+                    ) STORED,
 
                 TaxableAmount DECIMAL(12,2)
                     GENERATED ALWAYS AS
-                    (ROUND(
-                        (Qty * Rate) -
-                        (Qty * Rate * DiscountPercent / 100),
-                        2
-                    ))
-                    STORED,
+                    (
+                        ROUND(
+                            (Qty * Rate) -
+                            (Qty * Rate * DiscountPercent / 100),
+                            2
+                        )
+                    ) STORED,
 
                 FOREIGN KEY (SalesOrderID)
                     REFERENCES SalesOrder(SalesOrderID),
@@ -331,9 +347,9 @@ def fast_initialize():
             )
         """)
 
-        # ==================================================
+        # ------------------------------------------
         # INVOICE
-        # ==================================================
+        # ------------------------------------------
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Invoice (
@@ -369,9 +385,9 @@ def fast_initialize():
             )
         """)
 
-        # ==================================================
+        # ------------------------------------------
         # INVOICE DETAIL
-        # ==================================================
+        # ------------------------------------------
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS InvoiceDetail (
@@ -404,9 +420,9 @@ def fast_initialize():
             )
         """)
 
-        # ==================================================
+        # ------------------------------------------
         # PAYMENT
-        # ==================================================
+        # ------------------------------------------
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Payment (
@@ -437,7 +453,8 @@ def fast_initialize():
         """)
 
         cursor.execute("""
-            INSERT IGNORE INTO Category (CategoryID, CategoryName)
+            INSERT IGNORE INTO Category
+            (CategoryID, CategoryName)
             VALUES
             (1, 'Shirts'),
             (2, 'T-Shirts'),
@@ -447,7 +464,8 @@ def fast_initialize():
         """)
 
         cursor.execute("""
-            INSERT IGNORE INTO Color (ColorID, ColorName)
+            INSERT IGNORE INTO Color
+            (ColorID, ColorName)
             VALUES
             (1, 'Red'),
             (2, 'Blue'),
@@ -457,7 +475,8 @@ def fast_initialize():
         """)
 
         cursor.execute("""
-            INSERT IGNORE INTO Size (SizeID, SizeName, SizeOrder)
+            INSERT IGNORE INTO Size
+            (SizeID, SizeName, SizeOrder)
             VALUES
             (1, 'S', 1),
             (2, 'M', 2),
@@ -468,7 +487,13 @@ def fast_initialize():
 
         cursor.execute("""
             INSERT IGNORE INTO TaxMaster
-            (TaxID, TaxName, CGSTPercent, SGSTPercent, IGSTPercent)
+            (
+                TaxID,
+                TaxName,
+                CGSTPercent,
+                SGSTPercent,
+                IGSTPercent
+            )
             VALUES
             (1, 'GST 5%', 2.5, 2.5, 5.0),
             (2, 'GST 12%', 6.0, 6.0, 12.0),
@@ -483,12 +508,14 @@ def fast_initialize():
 
         print("Database error:", err)
 
+        raise
+
     finally:
 
-        if cursor:
+        if cursor is not None:
             cursor.close()
 
-        if conn:
+        if conn is not None:
             conn.close()
 
 
@@ -507,18 +534,15 @@ def get_db():
     )
 
 
-# ==================================================
-# INITIALIZE DATABASE
-# ==================================================
-
+# Initialize database
 fast_initialize()
 
 
 # ==================================================
-# HOME / HEALTH CHECK
+# HOME / HEALTH
 # ==================================================
 
-@app.route('/')
+@app.route("/", methods=["GET"])
 def home():
 
     return jsonify({
@@ -527,7 +551,7 @@ def home():
     })
 
 
-@app.route('/health')
+@app.route("/health", methods=["GET"])
 def health():
 
     return jsonify({
@@ -536,22 +560,21 @@ def health():
 
 
 # ==================================================
-# CUSTOMER API - ADD
+# CUSTOMER API
 # ==================================================
 
-@app.route('/api/customers', methods=['POST'])
+@app.route("/api/customers", methods=["POST"])
 def add_customer():
 
     data = request.get_json()
 
     if not data:
-
         return jsonify({
             "status": "error",
             "message": "No data received"
         }), 400
 
-    if 'CustomerCode' not in data or 'CustomerName' not in data:
+    if "CustomerCode" not in data or "CustomerName" not in data:
 
         return jsonify({
             "status": "error",
@@ -581,13 +604,13 @@ def add_customer():
         """
 
         values = (
-            data.get('CustomerCode'),
-            data.get('CustomerName'),
-            data.get('CustomerType', 'Retail'),
-            data.get('Phone'),
-            data.get('Email'),
-            data.get('GSTIN'),
-            data.get('City')
+            data.get("CustomerCode"),
+            data.get("CustomerName"),
+            data.get("CustomerType", "Retail"),
+            data.get("Phone"),
+            data.get("Email"),
+            data.get("GSTIN"),
+            data.get("City")
         )
 
         cursor.execute(query, values)
@@ -614,11 +637,7 @@ def add_customer():
             conn.close()
 
 
-# ==================================================
-# CUSTOMER API - GET
-# ==================================================
-
-@app.route('/api/customers', methods=['GET'])
+@app.route("/api/customers", methods=["GET"])
 def get_customers():
 
     conn = None
@@ -663,22 +682,21 @@ def get_customers():
 
 
 # ==================================================
-# PRODUCT API - ADD
+# PRODUCT API
 # ==================================================
 
-@app.route('/api/products', methods=['POST'])
+@app.route("/api/products", methods=["POST"])
 def add_product():
 
     data = request.get_json()
 
     if not data:
-
         return jsonify({
             "status": "error",
             "message": "No data received"
         }), 400
 
-    if 'ProductCode' not in data or 'ProductName' not in data:
+    if "ProductCode" not in data or "ProductName" not in data:
 
         return jsonify({
             "status": "error",
@@ -708,21 +726,22 @@ def add_product():
                 Gender,
                 MRP
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES
+            (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
         values = (
-            data.get('ProductCode'),
-            data.get('ProductName'),
-            data.get('CategoryID'),
-            data.get('BrandID'),
-            data.get('HSNCode'),
-            data.get('UOMID'),
-            data.get('TaxID'),
-            data.get('Fabric'),
-            data.get('Season'),
-            data.get('Gender'),
-            data.get('MRP', 0)
+            data.get("ProductCode"),
+            data.get("ProductName"),
+            data.get("CategoryID"),
+            data.get("BrandID"),
+            data.get("HSNCode"),
+            data.get("UOMID"),
+            data.get("TaxID"),
+            data.get("Fabric"),
+            data.get("Season"),
+            data.get("Gender"),
+            data.get("MRP", 0)
         )
 
         cursor.execute(query, values)
@@ -749,11 +768,7 @@ def add_product():
             conn.close()
 
 
-# ==================================================
-# PRODUCT API - GET
-# ==================================================
-
-@app.route('/api/products', methods=['GET'])
+@app.route("/api/products", methods=["GET"])
 def get_products():
 
     conn = None
@@ -806,13 +821,12 @@ def get_products():
 # PRODUCT VARIANT API
 # ==================================================
 
-@app.route('/api/product-variants', methods=['POST'])
+@app.route("/api/product-variants", methods=["POST"])
 def add_product_variant():
 
     data = request.get_json()
 
     if not data:
-
         return jsonify({
             "status": "error",
             "message": "No data received"
@@ -840,12 +854,12 @@ def add_product_variant():
         """
 
         values = (
-            data.get('ProductID'),
-            data.get('SizeID'),
-            data.get('ColorID'),
-            data.get('SKUCode'),
-            data.get('Barcode'),
-            data.get('SellingPrice')
+            data.get("ProductID"),
+            data.get("SizeID"),
+            data.get("ColorID"),
+            data.get("SKUCode"),
+            data.get("Barcode"),
+            data.get("SellingPrice")
         )
 
         cursor.execute(query, values)
@@ -872,7 +886,7 @@ def add_product_variant():
             conn.close()
 
 
-@app.route('/api/product-variants', methods=['GET'])
+@app.route("/api/product-variants", methods=["GET"])
 def get_product_variants():
 
     conn = None
@@ -921,13 +935,12 @@ def get_product_variants():
 # STOCK API
 # ==================================================
 
-@app.route('/api/stock', methods=['POST'])
+@app.route("/api/stock", methods=["POST"])
 def add_stock():
 
     data = request.get_json()
 
     if not data:
-
         return jsonify({
             "status": "error",
             "message": "No data received"
@@ -952,9 +965,9 @@ def add_stock():
         """
 
         values = (
-            data.get('VariantID'),
-            data.get('WarehouseID'),
-            data.get('QtyAvailable')
+            data.get("VariantID"),
+            data.get("WarehouseID"),
+            data.get("QtyAvailable")
         )
 
         cursor.execute(query, values)
@@ -981,7 +994,7 @@ def add_stock():
             conn.close()
 
 
-@app.route('/api/stock', methods=['GET'])
+@app.route("/api/stock", methods=["GET"])
 def get_stock():
 
     conn = None
@@ -1027,13 +1040,12 @@ def get_stock():
 # SALES ORDER API
 # ==================================================
 
-@app.route('/api/sales-orders', methods=['POST'])
+@app.route("/api/sales-orders", methods=["POST"])
 def add_sales_order():
 
     data = request.get_json()
 
     if not data:
-
         return jsonify({
             "status": "error",
             "message": "No data received"
@@ -1062,13 +1074,13 @@ def add_sales_order():
         """
 
         values = (
-            data.get('OrderNo'),
-            data.get('OrderDate'),
-            data.get('CustomerID'),
-            data.get('WarehouseID'),
-            data.get('OrderStatus', 'Pending'),
-            data.get('Remarks'),
-            data.get('CreatedBy')
+            data.get("OrderNo"),
+            data.get("OrderDate"),
+            data.get("CustomerID"),
+            data.get("WarehouseID"),
+            data.get("OrderStatus", "Pending"),
+            data.get("Remarks"),
+            data.get("CreatedBy")
         )
 
         cursor.execute(query, values)
@@ -1095,7 +1107,7 @@ def add_sales_order():
             conn.close()
 
 
-@app.route('/api/sales-orders', methods=['GET'])
+@app.route("/api/sales-orders", methods=["GET"])
 def get_sales_orders():
 
     conn = None
@@ -1144,13 +1156,12 @@ def get_sales_orders():
 # SALES ORDER DETAIL API
 # ==================================================
 
-@app.route('/api/sales-order-details', methods=['POST'])
+@app.route("/api/sales-order-details", methods=["POST"])
 def add_sales_order_detail():
 
     data = request.get_json()
 
     if not data:
-
         return jsonify({
             "status": "error",
             "message": "No data received"
@@ -1177,11 +1188,11 @@ def add_sales_order_detail():
         """
 
         values = (
-            data.get('SalesOrderID'),
-            data.get('VariantID'),
-            data.get('Qty'),
-            data.get('Rate'),
-            data.get('DiscountPercent', 0)
+            data.get("SalesOrderID"),
+            data.get("VariantID"),
+            data.get("Qty"),
+            data.get("Rate"),
+            data.get("DiscountPercent", 0)
         )
 
         cursor.execute(query, values)
@@ -1208,7 +1219,7 @@ def add_sales_order_detail():
             conn.close()
 
 
-@app.route('/api/sales-order-details', methods=['GET'])
+@app.route("/api/sales-order-details", methods=["GET"])
 def get_sales_order_details():
 
     conn = None
@@ -1257,13 +1268,12 @@ def get_sales_order_details():
 # INVOICE API
 # ==================================================
 
-@app.route('/api/invoices', methods=['POST'])
+@app.route("/api/invoices", methods=["POST"])
 def add_invoice():
 
     data = request.get_json()
 
     if not data:
-
         return jsonify({
             "status": "error",
             "message": "No data received"
@@ -1298,26 +1308,29 @@ def add_invoice():
                 CreatedBy
             )
             VALUES
-            (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            (
+                %s, %s, %s, %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s, %s, %s, %s
+            )
         """
 
         values = (
-            data.get('InvoiceNo'),
-            data.get('InvoiceDate'),
-            data.get('SalesOrderID'),
-            data.get('CustomerID'),
-            data.get('WarehouseID'),
-            data.get('PlaceOfSupply'),
-            data.get('InvoiceType'),
-            data.get('SubTotal'),
-            data.get('TotalDiscount', 0),
-            data.get('TotalCGST', 0),
-            data.get('TotalSGST', 0),
-            data.get('TotalIGST', 0),
-            data.get('RoundOff', 0),
-            data.get('GrandTotal'),
-            data.get('InvoiceStatus', 'Pending'),
-            data.get('CreatedBy')
+            data.get("InvoiceNo"),
+            data.get("InvoiceDate"),
+            data.get("SalesOrderID"),
+            data.get("CustomerID"),
+            data.get("WarehouseID"),
+            data.get("PlaceOfSupply"),
+            data.get("InvoiceType"),
+            data.get("SubTotal"),
+            data.get("TotalDiscount", 0),
+            data.get("TotalCGST", 0),
+            data.get("TotalSGST", 0),
+            data.get("TotalIGST", 0),
+            data.get("RoundOff", 0),
+            data.get("GrandTotal"),
+            data.get("InvoiceStatus", "Pending"),
+            data.get("CreatedBy")
         )
 
         cursor.execute(query, values)
@@ -1344,7 +1357,7 @@ def add_invoice():
             conn.close()
 
 
-@app.route('/api/invoices', methods=['GET'])
+@app.route("/api/invoices", methods=["GET"])
 def get_invoices():
 
     conn = None
@@ -1402,13 +1415,12 @@ def get_invoices():
 # PAYMENT API
 # ==================================================
 
-@app.route('/api/payments', methods=['POST'])
+@app.route("/api/payments", methods=["POST"])
 def add_payment():
 
     data = request.get_json()
 
     if not data:
-
         return jsonify({
             "status": "error",
             "message": "No data received"
@@ -1436,12 +1448,12 @@ def add_payment():
         """
 
         values = (
-            data.get('InvoiceID'),
-            data.get('PaymentDate'),
-            data.get('Amount'),
-            data.get('PaymentMode'),
-            data.get('ReferenceNo'),
-            data.get('Remarks')
+            data.get("InvoiceID"),
+            data.get("PaymentDate"),
+            data.get("Amount"),
+            data.get("PaymentMode"),
+            data.get("ReferenceNo"),
+            data.get("Remarks")
         )
 
         cursor.execute(query, values)
@@ -1468,7 +1480,7 @@ def add_payment():
             conn.close()
 
 
-@app.route('/api/payments', methods=['GET'])
+@app.route("/api/payments", methods=["GET"])
 def get_payments():
 
     conn = None
@@ -1513,10 +1525,10 @@ def get_payments():
 
 
 # ==================================================
-# DASHBOARD
+# DASHBOARD API
 # ==================================================
 
-@app.route('/api/dashboard', methods=['GET'])
+@app.route("/api/dashboard", methods=["GET"])
 def dashboard():
 
     conn = None
@@ -1527,19 +1539,29 @@ def dashboard():
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
 
-        cursor.execute("SELECT COUNT(*) AS total FROM Product")
+        cursor.execute(
+            "SELECT COUNT(*) AS total FROM Product"
+        )
         products = cursor.fetchone()["total"]
 
-        cursor.execute("SELECT COUNT(*) AS total FROM Customer")
+        cursor.execute(
+            "SELECT COUNT(*) AS total FROM Customer"
+        )
         customers = cursor.fetchone()["total"]
 
-        cursor.execute("SELECT COUNT(*) AS total FROM SalesOrder")
+        cursor.execute(
+            "SELECT COUNT(*) AS total FROM SalesOrder"
+        )
         orders = cursor.fetchone()["total"]
 
-        cursor.execute("SELECT COUNT(*) AS total FROM Invoice")
+        cursor.execute(
+            "SELECT COUNT(*) AS total FROM Invoice"
+        )
         invoices = cursor.fetchone()["total"]
 
-        cursor.execute("SELECT COUNT(*) AS total FROM Payment")
+        cursor.execute(
+            "SELECT COUNT(*) AS total FROM Payment"
+        )
         payments = cursor.fetchone()["total"]
 
         return jsonify({
@@ -1567,15 +1589,15 @@ def dashboard():
 
 
 # ==================================================
-# RUN SERVER
+# RUN LOCAL SERVER
 # ==================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     print("Server running on http://127.0.0.1:5000")
 
     serve(
         app,
-        host='127.0.0.1',
+        host="127.0.0.1",
         port=5000
     )
