@@ -2,43 +2,82 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import mysql.connector
 from waitress import serve
+import os
 
 app = Flask(__name__)
+
+# Allow frontend to access this API
 CORS(app)
 
-DB_NAME = 'GarmentSalesDB'
-MYSQL_USER = 'root'
-MYSQL_PASSWORD = 'Yatish@2008'
-MYSQL_HOST = 'localhost'
+# ==================================================
+# DATABASE SETTINGS
+# ==================================================
+
+DB_NAME = os.environ.get("DB_NAME", "GarmentSalesDB")
+MYSQL_USER = os.environ.get("MYSQL_USER", "root")
+MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD", "")
+MYSQL_HOST = os.environ.get("MYSQL_HOST", "localhost")
+MYSQL_PORT = int(os.environ.get("MYSQL_PORT", "3306"))
+
+# For local computer = true
+# For online database = false
+CREATE_DATABASE = os.environ.get("CREATE_DATABASE", "true").lower() == "true"
 
 
-# --------------------------------------------------
+# ==================================================
 # DATABASE INITIALIZATION
-# --------------------------------------------------
+# ==================================================
 
 def fast_initialize():
 
+    conn = None
+    cursor = None
+
     try:
-        # Connect to MySQL server
+
+        # --------------------------------------------------
+        # CREATE DATABASE IF REQUIRED
+        # --------------------------------------------------
+
+        if CREATE_DATABASE:
+
+            conn = mysql.connector.connect(
+                host=MYSQL_HOST,
+                user=MYSQL_USER,
+                password=MYSQL_PASSWORD,
+                port=MYSQL_PORT
+            )
+
+            cursor = conn.cursor()
+
+            cursor.execute(
+                f"CREATE DATABASE IF NOT EXISTS `{DB_NAME}`"
+            )
+
+            cursor.close()
+            conn.close()
+
+            conn = None
+            cursor = None
+
+        # --------------------------------------------------
+        # CONNECT TO DATABASE
+        # --------------------------------------------------
+
         conn = mysql.connector.connect(
             host=MYSQL_HOST,
             user=MYSQL_USER,
-            password=MYSQL_PASSWORD
+            password=MYSQL_PASSWORD,
+            database=DB_NAME,
+            port=MYSQL_PORT
         )
 
         cursor = conn.cursor()
 
-        # Create database
-        cursor.execute(
-            "CREATE DATABASE IF NOT EXISTS GarmentSalesDB"
-        )
+        # ==================================================
+        # CATEGORY
+        # ==================================================
 
-        # Select database
-        cursor.execute(
-            "USE GarmentSalesDB"
-        )
-
-        # ---------------- CATEGORY ----------------
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Category (
                 CategoryID INT AUTO_INCREMENT PRIMARY KEY,
@@ -47,7 +86,10 @@ def fast_initialize():
             )
         """)
 
-        # ---------------- BRAND ----------------
+        # ==================================================
+        # BRAND
+        # ==================================================
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Brand (
                 BrandID INT AUTO_INCREMENT PRIMARY KEY,
@@ -56,7 +98,10 @@ def fast_initialize():
             )
         """)
 
-        # ---------------- COLOR ----------------
+        # ==================================================
+        # COLOR
+        # ==================================================
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Color (
                 ColorID INT AUTO_INCREMENT PRIMARY KEY,
@@ -64,7 +109,10 @@ def fast_initialize():
             )
         """)
 
-        # ---------------- SIZE ----------------
+        # ==================================================
+        # SIZE
+        # ==================================================
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Size (
                 SizeID INT AUTO_INCREMENT PRIMARY KEY,
@@ -73,7 +121,10 @@ def fast_initialize():
             )
         """)
 
-        # ---------------- UOM ----------------
+        # ==================================================
+        # UOM
+        # ==================================================
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS UOM (
                 UOMID INT AUTO_INCREMENT PRIMARY KEY,
@@ -81,7 +132,10 @@ def fast_initialize():
             )
         """)
 
-        # ---------------- TAX MASTER ----------------
+        # ==================================================
+        # TAX MASTER
+        # ==================================================
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS TaxMaster (
                 TaxID INT AUTO_INCREMENT PRIMARY KEY,
@@ -93,7 +147,10 @@ def fast_initialize():
             )
         """)
 
-        # ---------------- WAREHOUSE ----------------
+        # ==================================================
+        # WAREHOUSE
+        # ==================================================
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Warehouse (
                 WarehouseID INT AUTO_INCREMENT PRIMARY KEY,
@@ -102,7 +159,10 @@ def fast_initialize():
             )
         """)
 
-        # ---------------- PRODUCT ----------------
+        # ==================================================
+        # PRODUCT
+        # ==================================================
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Product (
                 ProductID INT AUTO_INCREMENT PRIMARY KEY,
@@ -134,7 +194,10 @@ def fast_initialize():
             )
         """)
 
-        # ---------------- PRODUCT VARIANT ----------------
+        # ==================================================
+        # PRODUCT VARIANT
+        # ==================================================
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS ProductVariant (
                 VariantID INT AUTO_INCREMENT PRIMARY KEY,
@@ -160,7 +223,10 @@ def fast_initialize():
             )
         """)
 
-        # ---------------- STOCK ----------------
+        # ==================================================
+        # STOCK
+        # ==================================================
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Stock (
                 StockID INT AUTO_INCREMENT PRIMARY KEY,
@@ -182,7 +248,10 @@ def fast_initialize():
             )
         """)
 
-        # ---------------- CUSTOMER ----------------
+        # ==================================================
+        # CUSTOMER
+        # ==================================================
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Customer (
                 CustomerID INT AUTO_INCREMENT PRIMARY KEY,
@@ -203,7 +272,10 @@ def fast_initialize():
             )
         """)
 
-        # ---------------- SALES ORDER ----------------
+        # ==================================================
+        # SALES ORDER
+        # ==================================================
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS SalesOrder (
                 SalesOrderID INT AUTO_INCREMENT PRIMARY KEY,
@@ -224,7 +296,10 @@ def fast_initialize():
             )
         """)
 
-        # ---------------- SALES ORDER DETAIL ----------------
+        # ==================================================
+        # SALES ORDER DETAIL
+        # ==================================================
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS SalesOrderDetail (
                 SalesOrderDetailID INT AUTO_INCREMENT PRIMARY KEY,
@@ -256,7 +331,10 @@ def fast_initialize():
             )
         """)
 
-        # ---------------- INVOICE ----------------
+        # ==================================================
+        # INVOICE
+        # ==================================================
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Invoice (
                 InvoiceID INT AUTO_INCREMENT PRIMARY KEY,
@@ -291,7 +369,10 @@ def fast_initialize():
             )
         """)
 
-        # ---------------- INVOICE DETAIL ----------------
+        # ==================================================
+        # INVOICE DETAIL
+        # ==================================================
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS InvoiceDetail (
                 InvoiceDetailID INT AUTO_INCREMENT PRIMARY KEY,
@@ -323,7 +404,10 @@ def fast_initialize():
             )
         """)
 
-        # ---------------- PAYMENT ----------------
+        # ==================================================
+        # PAYMENT
+        # ==================================================
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Payment (
                 PaymentID INT AUTO_INCREMENT PRIMARY KEY,
@@ -340,9 +424,9 @@ def fast_initialize():
             )
         """)
 
-        # --------------------------------------------------
+        # ==================================================
         # DEFAULT DATA
-        # --------------------------------------------------
+        # ==================================================
 
         cursor.execute("""
             INSERT IGNORE INTO UOM (UOMID, UOMName)
@@ -393,18 +477,24 @@ def fast_initialize():
 
         conn.commit()
 
-        cursor.close()
-        conn.close()
-
         print("MySQL Database and Tables ready.")
 
     except mysql.connector.Error as err:
+
         print("Database error:", err)
 
+    finally:
 
-# --------------------------------------------------
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
+
+
+# ==================================================
 # DATABASE CONNECTION
-# --------------------------------------------------
+# ==================================================
 
 def get_db():
 
@@ -412,17 +502,42 @@ def get_db():
         host=MYSQL_HOST,
         user=MYSQL_USER,
         password=MYSQL_PASSWORD,
-        database=DB_NAME
+        database=DB_NAME,
+        port=MYSQL_PORT
     )
 
 
-# Initialize database
+# ==================================================
+# INITIALIZE DATABASE
+# ==================================================
+
 fast_initialize()
 
 
-# --------------------------------------------------
+# ==================================================
+# HOME / HEALTH CHECK
+# ==================================================
+
+@app.route('/')
+def home():
+
+    return jsonify({
+        "status": "success",
+        "message": "Garment Sales Management API is running"
+    })
+
+
+@app.route('/health')
+def health():
+
+    return jsonify({
+        "status": "ok"
+    })
+
+
+# ==================================================
 # CUSTOMER API - ADD
-# --------------------------------------------------
+# ==================================================
 
 @app.route('/api/customers', methods=['POST'])
 def add_customer():
@@ -430,6 +545,7 @@ def add_customer():
     data = request.get_json()
 
     if not data:
+
         return jsonify({
             "status": "error",
             "message": "No data received"
@@ -441,6 +557,9 @@ def add_customer():
             "status": "error",
             "message": "Customer Code and Name are required"
         }), 400
+
+    conn = None
+    cursor = None
 
     try:
 
@@ -472,11 +591,7 @@ def add_customer():
         )
 
         cursor.execute(query, values)
-
         conn.commit()
-
-        cursor.close()
-        conn.close()
 
         return jsonify({
             "status": "success",
@@ -490,18 +605,28 @@ def add_customer():
             "message": str(err)
         }), 500
 
+    finally:
 
-# --------------------------------------------------
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
+
+
+# ==================================================
 # CUSTOMER API - GET
-# --------------------------------------------------
+# ==================================================
 
 @app.route('/api/customers', methods=['GET'])
 def get_customers():
 
+    conn = None
+    cursor = None
+
     try:
 
         conn = get_db()
-
         cursor = conn.cursor(dictionary=True)
 
         cursor.execute("""
@@ -519,9 +644,6 @@ def get_customers():
 
         customers = cursor.fetchall()
 
-        cursor.close()
-        conn.close()
-
         return jsonify(customers), 200
 
     except mysql.connector.Error as err:
@@ -530,9 +652,19 @@ def get_customers():
             "status": "error",
             "message": str(err)
         }), 500
-    # --------------------------------------------------
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
+
+
+# ==================================================
 # PRODUCT API - ADD
-# --------------------------------------------------
+# ==================================================
 
 @app.route('/api/products', methods=['POST'])
 def add_product():
@@ -540,16 +672,21 @@ def add_product():
     data = request.get_json()
 
     if not data:
+
         return jsonify({
             "status": "error",
             "message": "No data received"
         }), 400
 
     if 'ProductCode' not in data or 'ProductName' not in data:
+
         return jsonify({
             "status": "error",
             "message": "Product Code and Product Name are required"
         }), 400
+
+    conn = None
+    cursor = None
 
     try:
 
@@ -589,11 +726,7 @@ def add_product():
         )
 
         cursor.execute(query, values)
-
         conn.commit()
-
-        cursor.close()
-        conn.close()
 
         return jsonify({
             "status": "success",
@@ -607,18 +740,28 @@ def add_product():
             "message": str(err)
         }), 500
 
+    finally:
 
-# --------------------------------------------------
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
+
+
+# ==================================================
 # PRODUCT API - GET
-# --------------------------------------------------
+# ==================================================
 
 @app.route('/api/products', methods=['GET'])
 def get_products():
 
+    conn = None
+    cursor = None
+
     try:
 
         conn = get_db()
-
         cursor = conn.cursor(dictionary=True)
 
         cursor.execute("""
@@ -641,9 +784,6 @@ def get_products():
 
         products = cursor.fetchall()
 
-        cursor.close()
-        conn.close()
-
         return jsonify(products), 200
 
     except mysql.connector.Error as err:
@@ -653,9 +793,18 @@ def get_products():
             "message": str(err)
         }), 500
 
-# ================= PRODUCT VARIANT API =================
+    finally:
 
-# ================= PRODUCT VARIANT API =================
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
+
+
+# ==================================================
+# PRODUCT VARIANT API
+# ==================================================
 
 @app.route('/api/product-variants', methods=['POST'])
 def add_product_variant():
@@ -663,10 +812,14 @@ def add_product_variant():
     data = request.get_json()
 
     if not data:
+
         return jsonify({
             "status": "error",
             "message": "No data received"
         }), 400
+
+    conn = None
+    cursor = None
 
     try:
 
@@ -696,11 +849,7 @@ def add_product_variant():
         )
 
         cursor.execute(query, values)
-
         conn.commit()
-
-        cursor.close()
-        conn.close()
 
         return jsonify({
             "status": "success",
@@ -714,9 +863,20 @@ def add_product_variant():
             "message": str(err)
         }), 500
 
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
+
 
 @app.route('/api/product-variants', methods=['GET'])
 def get_product_variants():
+
+    conn = None
+    cursor = None
 
     try:
 
@@ -739,9 +899,6 @@ def get_product_variants():
 
         variants = cursor.fetchall()
 
-        cursor.close()
-        conn.close()
-
         return jsonify(variants), 200
 
     except mysql.connector.Error as err:
@@ -750,7 +907,19 @@ def get_product_variants():
             "status": "error",
             "message": str(err)
         }), 500
-    # ================= STOCK API =================
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
+
+
+# ==================================================
+# STOCK API
+# ==================================================
 
 @app.route('/api/stock', methods=['POST'])
 def add_stock():
@@ -758,10 +927,14 @@ def add_stock():
     data = request.get_json()
 
     if not data:
+
         return jsonify({
             "status": "error",
             "message": "No data received"
         }), 400
+
+    conn = None
+    cursor = None
 
     try:
 
@@ -785,11 +958,7 @@ def add_stock():
         )
 
         cursor.execute(query, values)
-
         conn.commit()
-
-        cursor.close()
-        conn.close()
 
         return jsonify({
             "status": "success",
@@ -803,9 +972,20 @@ def add_stock():
             "message": str(err)
         }), 500
 
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
+
 
 @app.route('/api/stock', methods=['GET'])
 def get_stock():
+
+    conn = None
+    cursor = None
 
     try:
 
@@ -825,9 +1005,6 @@ def get_stock():
 
         stock = cursor.fetchall()
 
-        cursor.close()
-        conn.close()
-
         return jsonify(stock), 200
 
     except mysql.connector.Error as err:
@@ -836,7 +1013,19 @@ def get_stock():
             "status": "error",
             "message": str(err)
         }), 500
-    # ================= SALES ORDER API =================
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
+
+
+# ==================================================
+# SALES ORDER API
+# ==================================================
 
 @app.route('/api/sales-orders', methods=['POST'])
 def add_sales_order():
@@ -844,10 +1033,14 @@ def add_sales_order():
     data = request.get_json()
 
     if not data:
+
         return jsonify({
             "status": "error",
             "message": "No data received"
         }), 400
+
+    conn = None
+    cursor = None
 
     try:
 
@@ -879,11 +1072,7 @@ def add_sales_order():
         )
 
         cursor.execute(query, values)
-
         conn.commit()
-
-        cursor.close()
-        conn.close()
 
         return jsonify({
             "status": "success",
@@ -897,9 +1086,20 @@ def add_sales_order():
             "message": str(err)
         }), 500
 
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
+
 
 @app.route('/api/sales-orders', methods=['GET'])
 def get_sales_orders():
+
+    conn = None
+    cursor = None
 
     try:
 
@@ -922,9 +1122,6 @@ def get_sales_orders():
 
         orders = cursor.fetchall()
 
-        cursor.close()
-        conn.close()
-
         return jsonify(orders), 200
 
     except mysql.connector.Error as err:
@@ -933,7 +1130,19 @@ def get_sales_orders():
             "status": "error",
             "message": str(err)
         }), 500
-    # ================= SALES ORDER DETAIL API =================
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
+
+
+# ==================================================
+# SALES ORDER DETAIL API
+# ==================================================
 
 @app.route('/api/sales-order-details', methods=['POST'])
 def add_sales_order_detail():
@@ -941,10 +1150,14 @@ def add_sales_order_detail():
     data = request.get_json()
 
     if not data:
+
         return jsonify({
             "status": "error",
             "message": "No data received"
         }), 400
+
+    conn = None
+    cursor = None
 
     try:
 
@@ -972,11 +1185,7 @@ def add_sales_order_detail():
         )
 
         cursor.execute(query, values)
-
         conn.commit()
-
-        cursor.close()
-        conn.close()
 
         return jsonify({
             "status": "success",
@@ -990,9 +1199,20 @@ def add_sales_order_detail():
             "message": str(err)
         }), 500
 
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
+
 
 @app.route('/api/sales-order-details', methods=['GET'])
 def get_sales_order_details():
+
+    conn = None
+    cursor = None
 
     try:
 
@@ -1015,9 +1235,6 @@ def get_sales_order_details():
 
         details = cursor.fetchall()
 
-        cursor.close()
-        conn.close()
-
         return jsonify(details), 200
 
     except mysql.connector.Error as err:
@@ -1026,7 +1243,19 @@ def get_sales_order_details():
             "status": "error",
             "message": str(err)
         }), 500
-    # ================= INVOICE API =================
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
+
+
+# ==================================================
+# INVOICE API
+# ==================================================
 
 @app.route('/api/invoices', methods=['POST'])
 def add_invoice():
@@ -1034,12 +1263,17 @@ def add_invoice():
     data = request.get_json()
 
     if not data:
+
         return jsonify({
             "status": "error",
             "message": "No data received"
         }), 400
 
+    conn = None
+    cursor = None
+
     try:
+
         conn = get_db()
         cursor = conn.cursor()
 
@@ -1089,9 +1323,6 @@ def add_invoice():
         cursor.execute(query, values)
         conn.commit()
 
-        cursor.close()
-        conn.close()
-
         return jsonify({
             "status": "success",
             "message": "Invoice saved successfully!"
@@ -1104,11 +1335,23 @@ def add_invoice():
             "message": str(err)
         }), 500
 
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
+
 
 @app.route('/api/invoices', methods=['GET'])
 def get_invoices():
 
+    conn = None
+    cursor = None
+
     try:
+
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
 
@@ -1137,9 +1380,6 @@ def get_invoices():
 
         invoices = cursor.fetchall()
 
-        cursor.close()
-        conn.close()
-
         return jsonify(invoices), 200
 
     except mysql.connector.Error as err:
@@ -1148,7 +1388,19 @@ def get_invoices():
             "status": "error",
             "message": str(err)
         }), 500
-    # ================= PAYMENT API =================
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
+
+
+# ==================================================
+# PAYMENT API
+# ==================================================
 
 @app.route('/api/payments', methods=['POST'])
 def add_payment():
@@ -1156,10 +1408,14 @@ def add_payment():
     data = request.get_json()
 
     if not data:
+
         return jsonify({
             "status": "error",
             "message": "No data received"
         }), 400
+
+    conn = None
+    cursor = None
 
     try:
 
@@ -1189,11 +1445,7 @@ def add_payment():
         )
 
         cursor.execute(query, values)
-
         conn.commit()
-
-        cursor.close()
-        conn.close()
 
         return jsonify({
             "status": "success",
@@ -1207,9 +1459,20 @@ def add_payment():
             "message": str(err)
         }), 500
 
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
+
 
 @app.route('/api/payments', methods=['GET'])
 def get_payments():
+
+    conn = None
+    cursor = None
 
     try:
 
@@ -1231,9 +1494,6 @@ def get_payments():
 
         payments = cursor.fetchall()
 
-        cursor.close()
-        conn.close()
-
         return jsonify(payments), 200
 
     except mysql.connector.Error as err:
@@ -1242,15 +1502,28 @@ def get_payments():
             "status": "error",
             "message": str(err)
         }), 500
-    
-# --------------------------------------------------
-# RUN SERVER
-# --------------------------------------------------
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
+
+
+# ==================================================
 # DASHBOARD
+# ==================================================
+
 @app.route('/api/dashboard', methods=['GET'])
 def dashboard():
 
+    conn = None
+    cursor = None
+
     try:
+
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
 
@@ -1269,9 +1542,6 @@ def dashboard():
         cursor.execute("SELECT COUNT(*) AS total FROM Payment")
         payments = cursor.fetchone()["total"]
 
-        cursor.close()
-        conn.close()
-
         return jsonify({
             "products": products,
             "customers": customers,
@@ -1281,10 +1551,25 @@ def dashboard():
         }), 200
 
     except mysql.connector.Error as err:
+
         return jsonify({
             "status": "error",
             "message": str(err)
         }), 500
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
+
+
+# ==================================================
+# RUN SERVER
+# ==================================================
+
 if __name__ == '__main__':
 
     print("Server running on http://127.0.0.1:5000")
